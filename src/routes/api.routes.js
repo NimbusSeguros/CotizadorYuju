@@ -2,7 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { fetchDataFromAPI } = require('../services/externalService');
 const { fetchDataWithJWT } = require('../services/externalJWTService');
+const { obtenerCotizacionRUS } = require('../apis/rusService');
 const config = require('../config');
+
+router.post('/cotizacion/auto', async (req, res) => {
+    try {
+        const { marca, modelo, anio, tipo } = req.body;
+        const cotizacionRUS = await obtenerCotizacionRUS(marca, modelo, anio, tipo);
+        res.json({ rus: cotizacionRUS });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 router.get('/datos', async (req, res) => {
     try {
