@@ -1,16 +1,19 @@
 const axios = require('axios');
-const config = require('../config');
 
-// Función para obtener datos de API externa
-async function fetchDataFromAPI(apiUrl) {
+async function apiRequest(method, url, data = {}, headers = {}) {
     try {
-        const response = await axios.get(apiUrl);
+        const response = await axios({
+            method,
+            url,
+            data,
+            headers
+        });
+
         return response.data;
     } catch (error) {
-        console.error(`Error al consumir ${apiUrl}:`, error.message);
-        throw new Error(`Error obteniendo datos de ${apiUrl}`);
+        console.error(`❌ Error en API (${url}):`, error.response?.data || error.message);
+        return null;
     }
 }
 
-
-module.exports = { fetchDataFromAPI };
+module.exports = { apiRequest };
