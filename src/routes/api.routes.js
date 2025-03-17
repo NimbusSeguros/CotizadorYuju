@@ -27,6 +27,17 @@ router.post('/mercantil-andina/cotizacion-auto', async (req, res) => {
     }
 });
 
+router.post('/san-cristobal/cotizacion-auto', async (req, res) => { //Esta URL no es correcta, verificar
+    const { marca, modelo, anio, uso } = req.body;
+
+    try {
+        const cotizacion = await obtenerCotizacionSanCristobal(marca, modelo, anio, uso);
+        res.json(cotizacion);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.get('/datos', async (req, res) => {
     try {
         const data1 = await fetchDataFromAPI(config.EXTERNAL_API_1);

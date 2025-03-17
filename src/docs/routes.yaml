@@ -143,6 +143,40 @@ paths:
         "500":
           description: Error interno del servidor
 
+  /api/san-cristobal/cotizacion-auto:
+  post:
+    summary: Obtener cotización de San Cristóbal Seguros
+    description: Solicita una cotización para un vehículo en San Cristóbal Seguros.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              marca:
+                type: string
+                example: "Toyota"
+              modelo:
+                type: string
+                example: "Corolla"
+              anio:
+                type: integer
+                example: 2023
+              uso:
+                type: string
+                example: "particular"
+    responses:
+      "200":
+        description: Cotización obtenida con éxito
+        content:
+          application/json:
+            schema:
+              type: object
+      "500":
+        description: Error interno del servidor
+
+
   /api/cotizacion-auto/unificada:
     post:
       summary: Endpoint Unificador para Cotización
