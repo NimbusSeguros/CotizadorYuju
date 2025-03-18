@@ -4,7 +4,28 @@ const { fetchDataFromAPI } = require('../services/externalService');
 const { fetchDataWithJWT } = require('../services/externalJWTService');
 const { obtenerCotizacionRUS } = require('../services/rusService');
 const { obtenerCotizacionMercantilAndina } = require('../services/maService');
+const { getAuthToken } = require('../services/authService');
+const { enviarSolicitudSOAP } = require('../services/integrityService');
 const config = require('../config');
+
+
+
+
+//  Probar autenticación de cualquier aseguradora
+router.post('/auth/:company', async (req, res) => {
+    try {
+        const company = req.params.company;
+        
+        if (!company) {
+            return res.status(400).json({ error: "Falta el parámetro company en la URL" });
+        }
+
+        const token = await getAuthToken(company.toUpperCase()); 
+        res.json({ company, token });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 router.post('/cotizacion/auto', async (req, res) => {
     try {
@@ -52,6 +73,36 @@ router.get('/jwt-data', async (req, res) => {
     try {
         const data = await fetchDataWithJWT();
         res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/cotizar/integrity', async (req, res) => {
+    try {
+        const { sexo, provincia, localidad, marca, modelo, anio, sumaAsegurada } = req.body;
+
+        // Generamos el XML de cotización dinámicamente
+        const xmlData = `
+        <DatosCotizacion Emitir="N" Ticket="${config.INTEGRITY_TICKET}" ActualizarMovimiento="S" ModoEjecucionProcesoCalculo="CompletoSinGestion">
+            <DatosCliente>
+                <Sexo>${sexo}</Sexo>
+                <Provincia>${provincia}</Provincia>
+                <Localidad>${localidad}</Localidad>
+            </DatosCliente>
+            <DatosVehiculo>
+                <Marca>${marca}</Marca>
+                <Modelo>${modelo}</Modelo>
+                <Anio>${anio}</Anio>
+                <SumaAsegurada>${sumaAsegurada}</SumaAsegurada>
+            </DatosVehiculo>
+            <DatosPropuesta>
+                <Productor>${config.INTEGRITY_PRODUCTOR}</Productor>
+            </DatosPropuesta>
+        </DatosCotizacion>`;
+
+        const response = await enviarSolicitudSOAP(xmlData);
+        res.send(response);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

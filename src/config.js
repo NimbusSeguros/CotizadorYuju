@@ -12,6 +12,7 @@ module.exports = {
     JWT_USER: process.env.JWT_USER,
     JWT_PASS: process.env.JWT_PASS,
     RUS_API_URL: process.env.RUS_API_URL,
+    RUS_API_URL_TEST: process.env.RUS_API_URL_TEST, 
     RUS_API_USERNAME: process.env.RUS_API_USERNAME,
     RUS_API_PASSWORD: process.env.RUS_API_PASSWORD,
 
