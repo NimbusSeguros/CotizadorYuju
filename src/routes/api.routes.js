@@ -27,11 +27,46 @@ router.post('/mercantil-andina/cotizacion-auto', async (req, res) => {
     }
 });
 
-router.post('/san-cristobal/cotizacion-auto', async (req, res) => { //Esta URL no es correcta, verificar
-    const { marca, modelo, anio, uso } = req.body;
+// router.post('/san-cristobal/cotizacion-auto', async (req, res) => { //Esta URL no es correcta, verificar
+//     const datosCotizacion = req.body;
+
+//     try {
+//         const cotizacion = await obtenerCotizacionSanCristobal(datosCotizacion);
+//         res.json(cotizacion);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+router.post('/san-cristobal/cotizacion-auto', async (req, res) => {
+    const {
+        marca, modelo, anio, uso, sumaAsegurada, tipoCobertura,
+        tipoDocumento, numeroDocumento, nombre, apellido, email, telefono
+    } = req.body;
+
+    // Validar que todos los parámetros requeridos estén presentes
+    if (!marca || !modelo || !anio || !uso || !sumaAsegurada || !tipoCobertura ||
+        !tipoDocumento || !numeroDocumento || !nombre || !apellido || !email || !telefono) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    }
 
     try {
-        const cotizacion = await obtenerCotizacionSanCristobal(marca, modelo, anio, uso);
+        const datosCotizacion = {
+            marca,
+            modelo,
+            anio,
+            uso,
+            sumaAsegurada,
+            tipoCobertura,
+            tipoDocumento,
+            numeroDocumento,
+            nombre,
+            apellido,
+            email,
+            telefono
+        };
+
+        const cotizacion = await obtenerCotizacionSanCristobal(datosCotizacion);
         res.json(cotizacion);
     } catch (error) {
         res.status(500).json({ error: error.message });
