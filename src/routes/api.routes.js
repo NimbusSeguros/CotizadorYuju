@@ -14,7 +14,7 @@ const config = require('../config');
 //  Probar autenticación de cualquier aseguradora
 router.post('/auth/:company', async (req, res) => {
     try {
-        const company = req.params.company;
+        const company =  req.params.company.toUpperCase().replace("-", "_"); // Normaliza los nombres
         
         if (!company) {
             return res.status(400).json({ error: "Falta el parámetro company en la URL" });

@@ -1,30 +1,13 @@
-const { apiRequest } = require('../services/externalService'); 
+const { apiRequest } = require('../services/externalService');
+const { getAuthToken } = require('./authService');
 const config = require('../config');
-
-async function obtenerTokenSanCristobal() {
-    try {
-        const authResponse = await apiRequest('POST', config.SAN_CRISTOBAL_API_LOGIN_URL, {
-            username: config.SAN_CRISTOBAL_API_USERNAME,
-            password: config.SAN_CRISTOBAL_API_PASSWORD
-        });
-
-        if (!authResponse || !authResponse.token) {
-            throw new Error("Respuesta inválida al obtener el token de San Cristóbal");
-        }
-
-        return authResponse.token;
-    } catch (error) {
-        console.error("Error obteniendo el token JWT de San Cristóbal:", error.response?.data || error.message);
-        throw new Error("No se pudo autenticar en San Cristóbal Seguros");
-    }
-}
 
 async function obtenerCotizacionSanCristobal(datosCotizacion) {
     try {
-        const token = await obtenerTokenSanCristobal();
+        const token = await getAuthToken('SAN_CRISTOBAL'); // Obtener el token desde authService.js
 
-        const response = await apiRequest('POST', `${config.SAN_CRISTOBAL_API_URL}/api/Quoted/QuoteCA7`, {
-            code: config.SAN_CRISTOBAL_API_CODE,
+        const response = await apiRequest('POST', config.SAN_CRISTOBAL_API_URL, {
+            code: config.SAN_CRISTOBAL_API_CODE, // ✅ Código solo para la cotización
             marca: datosCotizacion.marca,
             modelo: datosCotizacion.modelo,
             anio: datosCotizacion.anio,
