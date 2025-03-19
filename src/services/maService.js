@@ -1,29 +1,22 @@
-const { apiRequest } = require('../services/externalService'); 
+const { apiRequest } = require('../services/externalService');
+const { getAuthToken } = require('./authService'); 
 const config = require('../config');
 
 async function obtenerCotizacionMercantilAndina(datosCotizacion) {
-    const url = `${config.MERCANTIL_ANDINA_API_URL}`;
+    try {
+        const token = await getAuthToken('MERCANTIL_ANDINA'); // ✅ Obtener el token desde authService.js
 
-    // 🔄 Obtener el token JWT de Mercantil Andina
-    const authResponse = await apiRequest('POST', config.MERCANTIL_ANDINA_API_LOGIN_URL, {
-        email: config.MERCANTIL_ANDINA_API_USERNAME,
-        password: config.MERCANTIL_ANDINA_API_PASSWORD
-    });
+        const response = await apiRequest('POST', config.MERCANTIL_ANDINA_API_URL, datosCotizacion, {
+            Authorization: `Bearer ${token}`,
+            "Ocp-Apim-Subscription-Key": config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY,
+            "Content-Type": "application/json"
+        });
 
-    if (!authResponse || !authResponse.token) {
-        throw new Error('No se pudo autenticar en Mercantil Andina');
+        return response;
+    } catch (error) {
+        console.error("Error al obtener la cotización de Mercantil Andina:", error.response?.data || error.message);
+        throw new Error("No se pudo obtener la cotización de Mercantil Andina");
     }
-
-    const token = authResponse.token;
-
-    // 🔥 Enviar la solicitud con el token en los headers
-    const response = await apiRequest('POST', url, datosCotizacion, {
-        Authorization: `Bearer ${token}`,
-        "Ocp-Apim-Subscription-Key": config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY,
-        "Content-Type": "application/json"
-    });
-
-    return response;
 }
 
 module.exports = { obtenerCotizacionMercantilAndina };

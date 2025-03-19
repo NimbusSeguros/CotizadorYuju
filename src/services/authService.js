@@ -24,9 +24,19 @@ const AUTH_CONFIG = {
         url: `${config.MERCANTIL_ANDINA_API_LOGIN_URL}`,
         payload: () => ({
             email: config.MERCANTIL_ANDINA_API_USERNAME,
-            password: config.MERCANTIL_ANDINA_API_PASSWORD
+            password: config.MERCANTIL_ANDINA_API_PASSWORD,
+            prod_key: config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY
         }),
         tokenPath: "access_token",
+        headers: { "Content-Type": "application/json" }
+    },
+    SAN_CRISTOBAL: {
+        url: `${config.SAN_CRISTOBAL_API_LOGIN_URL}`,
+        payload: () => ({
+            username: config.SAN_CRISTOBAL_API_USERNAME,
+            password: config.SAN_CRISTOBAL_API_PASSWORD
+        }),
+        tokenPath: "Auth_Token",
         headers: { "Content-Type": "application/json" }
     }
 };
