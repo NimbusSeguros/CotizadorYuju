@@ -4,7 +4,28 @@ const { fetchDataFromAPI } = require('../services/externalService');
 const { fetchDataWithJWT } = require('../services/externalJWTService');
 const { obtenerCotizacionRUS } = require('../services/rusService');
 const { obtenerCotizacionMercantilAndina } = require('../services/maService');
+const { getAuthToken } = require('../services/authService');
+const { enviarSolicitudSOAP } = require('../services/integrityService');
 const config = require('../config');
+
+
+
+
+//  Probar autenticación de cualquier aseguradora
+router.post('/auth/:company', async (req, res) => {
+    try {
+        const company =  req.params.company.toUpperCase().replace("-", "_"); // Normaliza los nombres
+        
+        if (!company) {
+            return res.status(400).json({ error: "Falta el parámetro company en la URL" });
+        }
+
+        const token = await getAuthToken(company.toUpperCase()); 
+        res.json({ company, token });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 router.post('/cotizacion/auto', async (req, res) => {
     try {
@@ -21,6 +42,52 @@ router.post('/mercantil-andina/cotizacion-auto', async (req, res) => {
 
     try {
         const cotizacion = await obtenerCotizacionMercantilAndina(datosCotizacion);
+        res.json(cotizacion);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// router.post('/san-cristobal/cotizacion-auto', async (req, res) => { //Esta URL no es correcta, verificar
+//     const datosCotizacion = req.body;
+
+//     try {
+//         const cotizacion = await obtenerCotizacionSanCristobal(datosCotizacion);
+//         res.json(cotizacion);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+router.post('/san-cristobal/cotizacion-auto', async (req, res) => {
+    const {
+        marca, modelo, anio, uso, sumaAsegurada, tipoCobertura,
+        tipoDocumento, numeroDocumento, nombre, apellido, email, telefono
+    } = req.body;
+
+    // Validar que todos los parámetros requeridos estén presentes
+    if (!marca || !modelo || !anio || !uso || !sumaAsegurada || !tipoCobertura ||
+        !tipoDocumento || !numeroDocumento || !nombre || !apellido || !email || !telefono) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    }
+
+    try {
+        const datosCotizacion = {
+            marca,
+            modelo,
+            anio,
+            uso,
+            sumaAsegurada,
+            tipoCobertura,
+            tipoDocumento,
+            numeroDocumento,
+            nombre,
+            apellido,
+            email,
+            telefono
+        };
+
+        const cotizacion = await obtenerCotizacionSanCristobal(datosCotizacion);
         res.json(cotizacion);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -52,6 +119,36 @@ router.get('/jwt-data', async (req, res) => {
     try {
         const data = await fetchDataWithJWT();
         res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/cotizar/integrity', async (req, res) => {
+    try {
+        const { sexo, provincia, localidad, marca, modelo, anio, sumaAsegurada } = req.body;
+
+        // Generamos el XML de cotización dinámicamente
+        const xmlData = `
+        <DatosCotizacion Emitir="N" Ticket="${config.INTEGRITY_TICKET}" ActualizarMovimiento="S" ModoEjecucionProcesoCalculo="CompletoSinGestion">
+            <DatosCliente>
+                <Sexo>${sexo}</Sexo>
+                <Provincia>${provincia}</Provincia>
+                <Localidad>${localidad}</Localidad>
+            </DatosCliente>
+            <DatosVehiculo>
+                <Marca>${marca}</Marca>
+                <Modelo>${modelo}</Modelo>
+                <Anio>${anio}</Anio>
+                <SumaAsegurada>${sumaAsegurada}</SumaAsegurada>
+            </DatosVehiculo>
+            <DatosPropuesta>
+                <Productor>${config.INTEGRITY_PRODUCTOR}</Productor>
+            </DatosPropuesta>
+        </DatosCotizacion>`;
+
+        const response = await enviarSolicitudSOAP(xmlData);
+        res.send(response);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
