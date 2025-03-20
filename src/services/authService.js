@@ -21,14 +21,18 @@ const AUTH_CONFIG = {
         headers: { "Content-Type": "application/json" }
     },
     MERCANTIL_ANDINA: {
-        url: `${config.MERCANTIL_ANDINA_API_LOGIN_URL}`,
-        payload: () => ({
-            email: config.MERCANTIL_ANDINA_API_USERNAME,
+        url: config.MERCANTIL_ANDINA_API_LOGIN_URL,
+        payload: () => new URLSearchParams({
+            client_id: config.MERCANTIL_ANDINA_API_CLIENT_ID,
+            username: config.MERCANTIL_ANDINA_API_USERNAME,
             password: config.MERCANTIL_ANDINA_API_PASSWORD,
-            prod_key: config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY
-        }),
+            grant_type: "password"
+        }).toString(),
         tokenPath: "access_token",
-        headers: { "Content-Type": "application/json" }
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Ocp-Apim-Subscription-Key": config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY
+        }
     },
     SAN_CRISTOBAL: {
         url: `${config.SAN_CRISTOBAL_API_LOGIN_URL}`,
@@ -37,6 +41,15 @@ const AUTH_CONFIG = {
             password: config.SAN_CRISTOBAL_API_PASSWORD
         }),
         tokenPath: "Auth_Token",
+        headers: { "Content-Type": "application/json" }
+    },
+    EXPERTA: {  // 🚀 Ajuste para Experta
+        url: `${config.EXPERTA_API_URL}/login`,
+        payload: () => ({
+            user: config.EXPERTA_API_USERNAME,
+            password: config.EXPERTA_API_PASSWORD
+        }),
+        tokenPath: "jwt",  // ✅ Tomamos solo el `jwt`
         headers: { "Content-Type": "application/json" }
     }
 };
