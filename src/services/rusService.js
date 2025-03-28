@@ -1,31 +1,56 @@
-const { apiRequest } = require('../services/externalService'); 
+const { apiRequest } = require('../services/externalService');
+const { getAuthToken } = require('../services/authService');
 const config = require('../config');
 
-async function obtenerCotizacionRUS(marca, modelo, anio, tipo) {
-    const url = `${config.RUS_API_URL}/cotizacion/auto`;
+async function cotizarRUS() {
+    try {
+        const token = await getAuthToken('RUS');
+        console.log("🔐 Token recibido:", token);
 
-    const authResponse = await apiRequest('POST', `${config.RUS_API_URL}/auth/login`, {
-        username: config.RUS_API_USERNAME,
-        password: config.RUS_API_PASSWORD
-    });
+        const url = `${config.RUS_API_URL_TEST}/api-rus/cotizaciones/autos`;
 
-    if (!authResponse || !authResponse.token) {
-        throw new Error('No se pudo autenticar en RUS Seguros');
+        const payload = {
+            codigoProductor: 9254,
+            codigoSolicitante: 4998,
+            codigoTipoInteres: "VEHICULO",
+            cuotas: 1,
+            numeroSolicitud: 2,
+            condicionFiscal: "CF",
+            tipoVigencia: "ANUAL",
+            vigenciaDesde: "2025-03-28",
+            vigenciaHasta: "2026-03-27",
+            vigenciaPolizaId: 71,
+            vehiculos: [
+                {
+                    anio: "2022",
+                    controlSatelital: "NO",
+                    cpLocalidadGuarda: 5000,
+                    gnc: "NO",
+                    codia: 170838,
+                    rastreoACargoRUS: "NO",
+                    uso: "PARTICULAR"
+                }
+            ]
+        };
+
+        const headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `${token}`
+        };
+
+        console.log("📦 Payload:", JSON.stringify(payload, null, 2));
+        console.log("📨 Headers:", headers);
+
+        const response = await apiRequest('PUT', url, payload, headers);
+        console.log("✅ Respuesta de RUS:", response);
+
+        return response;
+    } catch (error) {
+        console.error("❌ Error en cotización con RUS:", error.response?.data || error.message);
+        throw new Error("Error al obtener la cotización con RUS");
     }
-
-    const token = authResponse.token;
-
-    const response = await apiRequest('POST', url, {
-        tipo,
-        marca,
-        modelo,
-        anio
-    }, {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-    });
-
-    return response;
 }
 
-module.exports = { obtenerCotizacionRUS };
+
+module.exports = { cotizarRUS };
