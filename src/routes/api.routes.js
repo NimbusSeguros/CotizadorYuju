@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { fetchDataFromAPI } = require('../services/externalService');
 const { fetchDataWithJWT } = require('../services/externalJWTService');
-const { obtenerCotizacionRUS } = require('../services/rusService');
+const { cotizarRUS } = require('../services/rusService');
 const { obtenerCotizacionMercantilAndina } = require('../services/maService');
 const { getAuthToken } = require('../services/authService');
 const { enviarSolicitudSOAP } = require('../services/integrityService');
+const { cotizarTodasLasCompanias } = require('../services/cotizacionService');
 const config = require('../config');
 
 
@@ -27,15 +28,59 @@ router.post('/auth/:company', async (req, res) => {
     }
 });
 
-router.post('/cotizacion/auto', async (req, res) => {
+///////////////////////////// ESTOS SON PARA PROBAR LAS COTIZACIONES //////////////////////////////////////////
+
+router.post('/cotizar/rus', async (req, res) => {
     try {
-        const { marca, modelo, anio, tipo } = req.body;
-        const cotizacionRUS = await obtenerCotizacionRUS(marca, modelo, anio, tipo);
-        res.json({ rus: cotizacionRUS });
+        const result = await cotizarRUS();
+        res.json(result);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Error al obtener la cotización con RUS" });
     }
 });
+
+const { cotizarConExperta } = require('../services/expertaService');
+
+router.post('/cotizar/experta', async (req, res) => {
+    try {
+        const result = await cotizarConExperta(req.body);
+        res.json(result);
+    } catch (error) {
+        console.error("❌ Error en cotización con EXPERTA:", error);
+        res.status(500).json({ error: "Error al obtener la cotización con EXPERTA" });
+    }
+});
+
+router.post('/cotizar', async (req, res) => {
+    try {
+        const cotizaciones = await cotizarTodasLasCompanias(req.body);
+        res.json({ cotizaciones });
+    } catch (error) {
+        console.error("❌ Error general en cotización:", error.message);
+        res.status(500).json({ error: "Error al obtener las cotizaciones." });
+    }
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post('/cotizar/auto', async (req, res) => {
+    try {
+        const params = req.body;
+
+        const [rus, integrity, mercantil, experta, sanCristobal] = await Promise.all([
+            cotizarRUS(params),
+            cotizarExperta(params)
+        ]);
+
+        const cotizaciones = [rus, experta].filter(Boolean);
+
+        res.json({ cotizaciones });
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener cotizaciones." });
+    }
+});
+
 
 router.post('/mercantil-andina/cotizacion-auto', async (req, res) => {
     const datosCotizacion = req.body; // Recibe el JSON completo desde la petición
