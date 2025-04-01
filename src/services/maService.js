@@ -17,45 +17,45 @@ async function cotizarMercantilAndina(datosCotizacion) {
         const payload = {
             // Información del productor
             sucursal: datosCotizacion.sucursal || "001",
-            productor: { id: datosCotizacion.productor || "98289" }, // Asegúrate de que el ID esté bien configurado
-        
+            productor: { id: datosCotizacion.productor || "98289" }, // ID de productor (asegurarse que esté bien configurado)
+            
             // Información del tomador
             tomador: {
-                tipoDocumento: datosCotizacion.tipoDocumento || "DNI",
-                numeroDocumento: datosCotizacion.numeroDocumento || "00000000",
-                apellido: datosCotizacion.apellido || "Apellido",
-                nombre: datosCotizacion.nombre || "Nombre",
-                email: datosCotizacion.email || "correo@example.com",
-                telefono: datosCotizacion.telefono || "123456789"
+                tipoDocumento: datosCotizacion.tipoDocumento || "DNI", // Tipo de documento
+                numeroDocumento: datosCotizacion.numeroDocumento || "00000000", // Número de documento
+                apellido: datosCotizacion.apellido || "Apellido", // Apellido
+                nombre: datosCotizacion.nombre || "Nombre", // Nombre
+                email: datosCotizacion.email || "correo@example.com", // Email
+                telefono: datosCotizacion.telefono || "123456789" // Teléfono
             },
         
             // Información del vehículo
             vehiculo: {
-                infoauto: datosCotizacion.infoauto || 120372, // Asegúrate de tener el código correcto
-                anio: datosCotizacion.anio || 2011,
-                marca: datosCotizacion.marca || "Toyota",
-                modelo: datosCotizacion.modelo || "Corolla",
-                version: datosCotizacion.version || "XEI",
-                uso: datosCotizacion.uso || "particular",
-                gnc: datosCotizacion.gnc === "true" ? true : false,  // Asegúrate que esto sea un booleano
-                rastreo: datosCotizacion.rastreo || 0
+                infoauto: datosCotizacion.codInfoAuto || 120372, // Código del vehículo (Infoauto)
+                anio: datosCotizacion.anio || 2011, // Año del vehículo
+                marca: datosCotizacion.marca || "RENAULT", // Marca del vehículo
+                modelo: datosCotizacion.modelo || "DUSTER", // Modelo del vehículo
+                version: datosCotizacion.version || "1.6 4X2 TECH ROAD CON AC, 05 PUERTAS", // Versión
+                uso: datosCotizacion.uso || 1, // Uso (1 = particular, etc.)
+                gnc: datosCotizacion.gnc === "true" ? true : false,  // Asegurarse que este valor sea booleano
+                rastreo: datosCotizacion.rastreo || 0  // Rastreo (0 o 1)
             },
         
             // Información adicional
-            comision: datosCotizacion.comision || 20,
-            bonificacion: datosCotizacion.bonificacion || 0,
-            periodo: datosCotizacion.periodo || 1,
-            cuotas: datosCotizacion.cuotas || 1,
+            comision: datosCotizacion.comision || 20,  // Comisión
+            bonificacion: datosCotizacion.bonificacion || 0,  // Bonificación
+            periodo: datosCotizacion.periodo || 1,  // Periodo (1 = mensual, etc.)
+            cuotas: datosCotizacion.cuotas || 1,  // Cuotas (número de cuotas)
             pago: {
-                tipo_pago: datosCotizacion.tipo_pago || "D"  // Pago con débito (D)
+                tipo_pago: datosCotizacion.tipo_pago || "D"  // Tipo de pago (D = débito)
             },
-            ajuste_suma: datosCotizacion.ajuste_suma || 25,
-            iva: datosCotizacion.iva || 5,
-            desglose: datosCotizacion.desglose || true,
+            ajuste_suma: datosCotizacion.ajuste_suma || 25,  // Ajuste de suma
+            iva: datosCotizacion.iva || 5,  // IVA
+            desglose: datosCotizacion.desglose || true,  // Desglose de la cotización
         
             // Localidad (postal code)
             localidad: {
-                codigo_postal: datosCotizacion.codigo_postal || 7600
+                codigo_postal: datosCotizacion.codigo_postal || 7600 // Código postal de la localidad
             }
         };        
 

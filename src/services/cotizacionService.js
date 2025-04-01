@@ -1,7 +1,7 @@
 const { cotizarRUS } = require('./rusService');
 const { cotizarConExperta } = require('./expertaService');
 const { cotizarMercantilAndina } = require('./maService');
-// const { cotizarSanCristobal } = require('./scService');
+const { cotizarSanCristobal } = require('./scService'); 
 
 async function cotizarTodasLasCompanias(datos) {
     const resultados = [];
