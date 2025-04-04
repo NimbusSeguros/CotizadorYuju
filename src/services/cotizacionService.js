@@ -42,17 +42,17 @@ async function cotizarTodasLasCompanias(datos) {
         console.error("❌ Error cotizando con MERCANTIL ANDINA:", err.message);
     }
 
-    // try {
-    //     const sanCristobal = await cotizarSanCristobal(datos);
-    //     if (sanCristobal) {
-    //         resultados.push({
-    //             aseguradora: "SAN CRISTÓBAL",
-    //             resultado: sanCristobal
-    //         });
-    //     }
-    // } catch (err) {
-    //     console.error("❌ Error cotizando con SAN CRISTÓBAL:", err.message);
-    // }
+    try {
+        const sanCristobal = await cotizarSanCristobal(datos);
+        if (sanCristobal) {
+            resultados.push({
+                aseguradora: "SAN CRISTÓBAL",
+                resultado: sanCristobal
+            });
+        }
+    } catch (err) {
+        console.error("❌ Error cotizando con SAN CRISTÓBAL:", err.message);
+    }
 
     return resultados;
 }
