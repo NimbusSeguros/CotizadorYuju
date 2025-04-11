@@ -8,259 +8,242 @@ servers:
   - url: http://localhost:3000
     description: Servidor Local
 
+tags:
+  - name: Cotizaciones
+  - name: Autenticación
+
 paths:
-  /api/datos:
-    get:
-      summary: Obtener datos de aseguradoras
-      description: Retorna información de aseguradoras en un formato estandarizado.
+  /api/auth/{compania}:
+    post:
+      tags:
+        - Autenticación
+      summary: Obtener token JWT para una compañía
+      description: Retorna un token de autenticación JWT para la aseguradora especificada.
+      parameters:
+        - in: path
+          name: compania
+          required: true
+          schema:
+            type: string
+            enum: [RUS, EXPERTA, MERCANTIL_ANDINA, SAN_CRISTOBAL, INTEGRITY]
+          description: Nombre de la compañía aseguradora
       responses:
-        "200":
-          description: Datos de las aseguradoras
+        '200':
+          description: Token JWT obtenido con éxito
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  source1:
-                    type: object
-                  source2:
-                    type: object
-        "500":
-          description: Error interno del servidor
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+        '500':
+          description: Error al autenticar
+#  /api/cotizar/todas:
+#    post:
+#      summary: Obtener cotizaciones de todas las aseguradoras
+#      tags:
+#        - Cotizaciones
+#      description: |
+#        Este endpoint unifica las cotizaciones de las aseguradoras RUS, EXPERTA, San Cristóbal, Integrity y Mercantil Andina. 
+#        Se envía un único body con los datos del vehículo y el tomador, y el sistema responde con los resultados individuales por compañía.
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                codInfoAuto:
+#                  type: integer
+#                  example: 170838
+#                anio:
+#                  type: integer
+#                  example: 2022
+#                sumaAsegurada:
+#                  type: number
+#                  example: 3250000
+#                codigoPostal:
+#                  type: string
+#                  example: "1407"
+#                uso:
+#                  type: string
+#                  example: "Particular"
+#                infoauto:
+#                  type: string
+#                  example: "460913"
+#                fechaNacimiento:
+#                  type: string
+#                  format: date
+#                  example: "1982-08-15"
+#                sexo:
+#                  type: string
+#                  example: "M"
+#                localidad:
+#                  type: string
+#                  example: "000716"
+#                provincia:
+#                  type: string
+#                  example: "01"
+#                email:
+#                  type: string
+#                  example: "test@correo.com"
+#                nombre:
+#                  type: string
+#                  example: "Lucas"
+#                apellido:
+#                  type: string
+#                  example: "Pérez"
+#                numeroDocumento:
+#                  type: string
+#                  example: "30123456"
+#      responses:
+#        "200":
+#          description: Respuesta con cotizaciones por aseguradora
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  type: object
+#                  properties:
+#                    aseguradora:
+#                      type: string
+#                      example: "RUS"
+#                    resultado:
+#                      type: object
+#        "500":
+#          description: Error en el procesamiento de alguna aseguradora
 
-  /api/jwt-data:
-    get:
-      summary: Obtener datos protegidos con JWT
-      description: Retorna datos desde una API externa que requiere autenticación JWT.
-      responses:
-        "200":
-          description: Datos obtenidos con autenticación JWT
-          content:
-            application/json:
-              schema:
-                type: object
-        "401":
-          description: No autorizado
-        "500":
-          description: Error interno del servidor
+#  /api/cotizar/rus:
+#    post:
+#      summary: Cotizar seguro en RUS
+#      tags:
+#        - Cotizaciones
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                codInfoAuto:
+#                  type: integer
+#                  example: 170838
+#                anio:
+#                  type: integer
+#                  example: 2022
+#                sumaAsegurada:
+#                  type: number
+#                  example: 3250000
+#                codigoPostal:
+#                  type: string
+#                  example: "1407"
+#                uso:
+#                  type: string
+#                  example: "Particular"
+#      responses:
+#        "200":
+#          description: Cotización obtenida exitosamente
+#        "500":
+#          description: Error interno del servidor
 
-  /api/cotizacion/auto:
-    post:
-      summary: Obtener cotización de RUS Seguros
-      description: Solicita una cotización para un vehículo en RUS Seguros.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                marca:
-                  type: string
-                  example: "Toyota"
-                modelo:
-                  type: string
-                  example: "Corolla"
-                anio:
-                  type: integer
-                  example: 2023
-                tipo:
-                  type: string
-                  example: "particular"
-      responses:
-        "200":
-          description: Cotización obtenida con éxito
-          content:
-            application/json:
-              schema:
-                type: object
-        "500":
-          description: Error interno del servidor
+#  /api/cotizar/experta:
+#    post:
+#      summary: Cotizar seguro en EXPERTA
+#      tags:
+#        - Cotizaciones
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                codInfoAuto:
+#                  type: integer
+#                  example: 360720
+#                anio:
+#                  type: integer
+#                  example: 2013
+#                modelo:
+#                  type: string
+#                  example: "DUSTER"
+#                marca:
+#                  type: string
+#                  example: "RENAULT"
+#                version:
+#                  type: string
+#                  example: "1.6 4X2 TECH ROAD CON AC, 05 PUERTAS"
+#                fechaVigencia:
+#                  type: string
+#                  example: "01/02/2023"
+#                productor:
+#                  type: string
+#                  example: "972"
+#      responses:
+#        "200":
+#          description: Cotización obtenida exitosamente
+#        "500":
+#          description: Error interno del servidor
 
-  /api/mercantil-andina/cotizacion-auto:
-    post:
-      summary: Obtener cotización de Mercantil Andina
-      description: Solicita una cotización para un vehículo en Mercantil Andina.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                sucursal:
-                  type: string
-                  example: "123"
-                productor:
-                  type: string
-                  example: "456"
-                tomador:
-                  type: object
-                  properties:
-                    tipoDocumento:
-                      type: string
-                      example: "DNI"
-                    numeroDocumento:
-                      type: string
-                      example: "30123456"
-                    apellido:
-                      type: string
-                      example: "Pérez"
-                    nombre:
-                      type: string
-                      example: "Juan"
-                    email:
-                      type: string
-                      example: "juan.perez@example.com"
-                    telefono:
-                      type: string
-                      example: "1122334455"
-                vehiculo:
-                  type: object
-                  properties:
-                    anio:
-                      type: integer
-                      example: 2023
-                    marca:
-                      type: string
-                      example: "Toyota"
-                    modelo:
-                      type: string
-                      example: "Corolla"
-                    version:
-                      type: string
-                      example: "XEI"
-                    uso:
-                      type: string
-                      example: "particular"
-      responses:
-        "200":
-          description: Cotización obtenida con éxito
-          content:
-            application/json:
-              schema:
-                type: object
-        "500":
-          description: Error interno del servidor
+#  /api/cotizar/san-cristobal:
+#    post:
+#      summary: Cotizar seguro en San Cristóbal
+#      tags:
+#        - Cotizaciones
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                infoauto:
+#                  type: string
+#                  example: "460913"
+#                anio:
+#                  type: integer
+#                  example: 2021
+#                sumaAsegurada:
+#                  type: number
+#                  example: 3252000
+#                uso:
+#                  type: string
+#                  example: "Particular"
+#      responses:
+#        "200":
+#          description: Cotización obtenida exitosamente
+#        "500":
+#          description: Error interno del servidor
 
-  /api/san-cristobal/cotizacion-auto:
-    post:
-      summary: Obtener cotización de San Cristóbal Seguros
-      description: Solicita una cotización para un vehículo en San Cristóbal Seguros.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                marca:
-                  type: string
-                  example: "Toyota"
-                modelo:
-                  type: string
-                  example: "Corolla"
-                anio:
-                  type: integer
-                  example: 2023
-                uso:
-                  type: string
-                  example: "particular"
-                sumaAsegurada:
-                  type: number
-                  example: 2000000
-                tipoCobertura:
-                  type: string
-                  example: "total"
-                datosTomador:
-                  type: object
-                  properties:
-                    tipoDocumento:
-                      type: string
-                      example: "DNI"
-                    numeroDocumento:
-                      type: string
-                      example: "30123456"
-                    nombre:
-                      type: string
-                      example: "Juan"
-                    apellido:
-                      type: string
-                      example: "Pérez"
-                    email:
-                      type: string
-                      example: "juan.perez@example.com"
-                    telefono:
-                      type: string
-                      example: "1122334455"
-      responses:
-        "200":
-          description: Cotización obtenida con éxito
-          content:
-            application/json:
-              schema:
-                type: object
-        "500":
-          description: Error interno del servidor
-
-
-  /api/cotizacion-auto/unificada:
-    post:
-      summary: Endpoint Unificador para Cotización
-      description: Recibe datos sueltos y construye el objeto necesario antes de solicitar la cotización a Mercantil Andina.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                sucursal:
-                  type: string
-                  example: "123"
-                productor:
-                  type: string
-                  example: "456"
-                tipoDocumento:
-                  type: string
-                  example: "DNI"
-                numeroDocumento:
-                  type: string
-                  example: "30123456"
-                apellido:
-                  type: string
-                  example: "Pérez"
-                nombre:
-                  type: string
-                  example: "Juan"
-                email:
-                  type: string
-                  example: "juan.perez@example.com"
-                telefono:
-                  type: string
-                  example: "1122334455"
-                anio:
-                  type: integer
-                  example: 2023
-                marca:
-                  type: string
-                  example: "Toyota"
-                modelo:
-                  type: string
-                  example: "Corolla"
-                version:
-                  type: string
-                  example: "XEI"
-                uso:
-                  type: string
-                  example: "particular"
-      responses:
-        "200":
-          description: Cotización obtenida con éxito
-          content:
-            application/json:
-              schema:
-                type: object
-        "500":
-          description: Error interno del servidor
-  
+#  /api/cotizar/integrity:
+#    post:
+#      summary: Cotizar seguro en Integrity
+#      tags:
+#        - Cotizaciones
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                marca:
+#                  type: string
+#                  example: "18"
+#                modelo:
+#                  type: string
+#                  example: "759"
+#                anio:
+#                  type: integer
+#                  example: 2023
+#                sumaAsegurada:
+#                  type: number
+#                  example: 47500000
+#      responses:
+#        "200":
+#          description: Cotización obtenida exitosamente
+#        "500":
+#          description: Error interno del servidor
