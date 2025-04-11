@@ -55,6 +55,7 @@ async function cotizarTodasLasCompanias(datos) {
         console.error("❌ Error cotizando con SAN CRISTÓBAL:", err.message);
     }
 
+
     try {
         const integrity = await cotizarIntegrity(datos);
         if (integrity) {
@@ -66,6 +67,7 @@ async function cotizarTodasLasCompanias(datos) {
     } catch (err) {
         console.error("❌ Error cotizando con INTEGRITY:", err.message);
     }
+
 
     return resultados;
 }
