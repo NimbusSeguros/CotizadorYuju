@@ -17,18 +17,18 @@ async function cotizarConExperta(datos) {
         nombres: datos.nombres || "Ignacio",
         apellido: datos.apellido || "Alcantara",
         email: datos.email || "ignacio.alcantara@alcanatargroup.com.ar",
-        codigoPostal: datos.codigoPostal,
-        codInfoAuto: datos.codInfoAuto,
-        marca: datos.marca,
-        ceroKM: datos.ceroKM,
-        modelo: datos.modelo,
-        anio: datos.anio,
-        fechaVigencia: datos.fechaVigencia,
-        gnc: datos.gnc,
-        uso: datos.uso || "1",
-        iva: datos.iva,
+        codigoPostal: datos.codigoPostal || "1419000",
+        codInfoAuto: datos.codInfoAuto || 360720,
+        marca: datos.marca || "RENAULT",
+        ceroKM: datos.ceroKM || "N",
+        modelo: datos.modelo || "DUSTER",
+        anio: datos.anio || 2013,
+        fechaVigencia: datos.fechaVigencia || "21/04/2025",
+        gnc: datos.gnc || "N",
+        uso: datos.uso || "1", // 1 = Particular
+        iva: datos.iva || "5", // 5 = Responsable Inscripto
         modalidad: datos.modalidad || "EX0",
-        version: datos.version,
+        version: datos.version || "1.6 4X2 TECH ROAD CON AC, 05 PUERTAS",
         productor: datos.productor || "972"
     };
 
