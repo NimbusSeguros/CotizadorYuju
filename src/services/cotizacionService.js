@@ -19,7 +19,7 @@ async function cotizarTodasLasCompanias(datos) {
         console.error("❌ Error cotizando con RUS:", err.message);
     }
 
-    try {
+    /*try {
         const experta = await cotizarConExperta(datos);
         if (experta) {
             resultados.push({
@@ -66,7 +66,7 @@ async function cotizarTodasLasCompanias(datos) {
         }
     } catch (err) {
         console.error("❌ Error cotizando con INTEGRITY:", err.message);
-    }
+    }*/
 
 
     return resultados;

@@ -17,7 +17,7 @@ async function cotizarRUS() {
             numeroSolicitud: 2,
             condicionFiscal: "CF",
             tipoVigencia: "ANUAL",
-            vigenciaDesde: "2025-03-28",
+            vigenciaDesde: "2025-04-22",
             vigenciaHasta: "2026-03-27",
             vigenciaPolizaId: 71,
             vehiculos: [
