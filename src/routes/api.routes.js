@@ -8,6 +8,8 @@ const { getAuthToken } = require('../services/authService');
 const { enviarSolicitudSOAP } = require('../services/integrityService');
 const { cotizarTodasLasCompanias } = require('../services/cotizacionService');
 const config = require('../config');
+const { getMarcas } = require("../services/infoAutoService");
+const { getToken } = require("../services/infoAutoService")
 
 
 
@@ -60,6 +62,127 @@ router.post('/cotizar', async (req, res) => {
         res.status(500).json({ error: "Error al obtener las cotizaciones." });
     }
 });
+
+///////////////////////////////////// I N F O      A U T O ////////////////////////////////////////
+
+router.get("/infoauto/modelos/:marcaId", async (req, res) => {
+  try {
+    const token = await getToken();
+    const { marcaId } = req.params;
+
+    const response = await fetch(`https://api.infoauto.com.ar/cars/pub/brands/${marcaId}/models`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    console.log("🧾 Modelos crudos de InfoAuto:", data);
+
+    if (!response.ok) {
+      console.error("❌ Error al obtener modelos:", data);
+      return res.status(500).json({ error: "Error al obtener modelos" });
+    }
+
+    const modelos = data.map((m) => ({
+      id: m.codia,
+      name: m.description
+    }));
+
+    res.json(modelos);
+  } catch (error) {
+    console.error("❌ Error en /infoauto/modelos:", error);
+    res.status(500).json({ error: "Fallo al obtener modelos" });
+  }
+});
+
+router.get("/infoauto/fake-cotizaciones", (req, res) => {
+  res.json([
+    {
+      id: 1,
+      name: "RUS",
+      logo: "/logos/rus.png",
+      status: "Actualmente el sistema de RUS se encuentra bajo una actualización, probá nuevamente en unos minutos",
+      prices: {
+        responsabilidad: { min: 5000, max: 10000 },
+        terceros: { min: 8000, max: 10000 },
+        tercerosCompleto: { min: 9000, max: 10000 },
+        todoRiesgo: { min: 10000, max: 10000 },
+      },
+    },
+    {
+      id: 2,
+      name: "San Cristóbal",
+      logo: "/logos/san-cristobal.png",
+      prices: {
+        responsabilidad: { min: 5000, max: 10000 },
+        terceros: { min: 8000, max: 10000 },
+        tercerosCompleto: { min: 9000, max: 10000 },
+        todoRiesgo: { min: 10000, max: 10000 },
+      },
+    },
+    {
+      id: 3,
+      name: "Experta",
+      logo: "/logos/experta.png",
+      prices: {
+        responsabilidad: { min: 5000, max: 10000 },
+        terceros: { min: 8000, max: 10000 },
+        tercerosCompleto: { min: 9000, max: 10000 },
+        todoRiesgo: { min: 10000, max: 10000 },
+      },
+    },
+    {
+      id: 4,
+      name: "Mercantil Andina",
+      logo: "/logos/mercantil-andina.png",
+      prices: {
+        responsabilidad: { min: 5000, max: 10000 },
+        terceros: { min: 8000, max: 10000 },
+        tercerosCompleto: { min: 9000, max: 10000 },
+        todoRiesgo: { min: 10000, max: 10000 },
+      },
+    },
+    {
+      id: 5,
+      name: "Intégrity",
+      logo: "/logos/integrity.png",
+      prices: {
+        responsabilidad: { min: 5000, max: 10000 },
+        terceros: { min: 8000, max: 10000 },
+        tercerosCompleto: { min: 9000, max: 10000 },
+        todoRiesgo: { min: 10000, max: 10000 },
+      },
+    }
+  ])
+})
+
+
+
+
+
+router.get('/infoauto/marcas', async (req, res) => {
+    try {
+      const marcas = await getMarcas();
+      res.json(marcas);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'No se pudo obtener marcas' });
+    }
+  });
+
+
+///////////////////////////////////// I N F O      A U T O ////////////////////////////////////////
+
+router.get("/marcas", async (req, res) => {
+  try {
+    const marcas = await getMarcas()
+    res.json(marcas)
+  } catch (error) {
+    console.error("Error en /api/infoauto/marcas:", error.message)
+    res.status(500).json({ error: "Error al obtener marcas desde InfoAuto" })
+  }
+})
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

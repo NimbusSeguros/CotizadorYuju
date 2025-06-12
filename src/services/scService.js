@@ -13,6 +13,15 @@ async function cotizarSanCristobal(datosCotizacion) {
 
         const url = `${config.SAN_CRISTOBAL_API_URL}/api/Quoted/QuoteCA7`;
 
+        // Validación de fecha de vigencia (no más de 30 días atrás)
+        const hoy = new Date();
+        const hace30dias = new Date();
+        hace30dias.setDate(hoy.getDate() - 30);
+        const fechaVigencia = new Date(datosCotizacion.fechaVigencia || hoy);
+        const fechaFinal = (fechaVigencia >= hace30dias && fechaVigencia <= hoy)
+            ? fechaVigencia.toISOString()
+            : hoy.toISOString();
+
         const payload = {
             InsuredData: {
                 AccountNumber: datosCotizacion.accountNumber || null,
@@ -23,7 +32,7 @@ async function cotizarSanCristobal(datosCotizacion) {
                 ProducerCode: datosCotizacion.productor || "02-006345"
             },
             PolicyData: {
-                StartDate: datosCotizacion.startDate || "2025-03-31T13:15:53.209Z",
+                StartDate: fechaFinal,
                 PolicyTermCode: datosCotizacion.policyTermCode || "HalfYear",
                 PaymentMethodCode: datosCotizacion.paymentMethodCode || "creditcard",
                 CurrencyCode: "ARS",
@@ -41,18 +50,18 @@ async function cotizarSanCristobal(datosCotizacion) {
                     AccesoryAmount: datosCotizacion.accesoryAmount || 0,
                     AdditionalInterestTaxId: null,
                     AutomaticAdjust: datosCotizacion.automaticAdjust || 20,
-                    Category: datosCotizacion.category || "Car4x4",
+                    Category: datosCotizacion.category || "Sedan",
                     FuelType: datosCotizacion.fuelType || "NAF",
                     Color: datosCotizacion.color || null,
-                    HasGNC: datosCotizacion.gnc || false,
+                    HasGNC: Boolean(datosCotizacion.gnc) || false,
                     HasGPS: datosCotizacion.hasGPS || false,
                     IdVehicle: datosCotizacion.idVehicle || 0,
-                    InfoautoCode: datosCotizacion.infoauto || "460913",
+                    InfoautoCode: datosCotizacion.infoauto || "170837",
                     Is0Km: datosCotizacion.is0Km || false,
-                    StatedAmount: datosCotizacion.statedAmount || 3252000,
+                    StatedAmount: datosCotizacion.statedAmount || 23940000,
                     Usage: datosCotizacion.uso || "Personal",
-                    Year: datosCotizacion.anio || 2020,
-                    IsNational: datosCotizacion.isNational || false,
+                    Year: datosCotizacion.anio || 2022,
+                    IsNational: datosCotizacion.isNational || true,
                     RiskLocationPostalCode: datosCotizacion.riskLocationPostalCode || 1407,
                     RiskLocationState: datosCotizacion.riskLocationState || "AR_23"
                 },

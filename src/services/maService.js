@@ -1,67 +1,55 @@
 const { apiRequest } = require('../services/externalService');
-const { getAuthToken } = require('./authService'); 
+const { getAuthToken } = require('./authService');
 const config = require('../config');
 
-async function cotizarMercantilAndina(datosCotizacion) {
+async function cotizarMercantilAndina(datos) {
     try {
-        const token = await getAuthToken('MERCANTIL_ANDINA'); // ✅ Obtener el token desde authService.js
+        const token = await getAuthToken('MERCANTIL_ANDINA');
 
-        // Configurar los headers necesarios
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
             'Ocp-Apim-Subscription-Key': config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY
         };
 
-        // Configurar el payload para la solicitud
         const payload = {
-            // Información del productor
-            sucursal: datosCotizacion.sucursal || "001",
-            productor: { id: datosCotizacion.productor || "98289" }, // ID de productor (asegurarse que esté bien configurado)
-            
-            // Información del tomador
+            sucursal: "001",
+            productor: { id: datos.productor || "98289" },
             tomador: {
-                tipoDocumento: datosCotizacion.tipoDocumento || "DNI", // Tipo de documento
-                numeroDocumento: datosCotizacion.numeroDocumento || "00000000", // Número de documento
-                apellido: datosCotizacion.apellido || "Apellido", // Apellido
-                nombre: datosCotizacion.nombre || "Nombre", // Nombre
-                email: datosCotizacion.email || "correo@example.com", // Email
-                telefono: datosCotizacion.telefono || "123456789" // Teléfono
+                tipoDocumento: datos.tipoDocumento || "DNI",
+                numeroDocumento: datos.numeroDocumento,
+                apellido: datos.apellido,
+                nombre: datos.nombre,
+                email: datos.email,
+                telefono: datos.telefono
             },
-        
-            // Información del vehículo
             vehiculo: {
-                infoauto: datosCotizacion.codInfoAuto || 120372, // Código del vehículo (Infoauto)
-                anio: datosCotizacion.anio || 2011, // Año del vehículo
-                marca: datosCotizacion.marca || "RENAULT", // Marca del vehículo
-                modelo: datosCotizacion.modelo || "DUSTER", // Modelo del vehículo
-                version: datosCotizacion.version || "1.6 4X2 TECH ROAD CON AC, 05 PUERTAS", // Versión
-                uso: datosCotizacion.uso || 1, // Uso (1 = particular, etc.)
-                gnc: datosCotizacion.gnc === "true" ? true : false,  // Asegurarse que este valor sea booleano
-                rastreo: datosCotizacion.rastreo || 0  // Rastreo (0 o 1)
+                infoauto: datos.codInfoAuto,
+                anio: datos.anio,
+                marca: datos.marca,
+                modelo: datos.modelo,
+                version: datos.version,
+                uso: parseInt(datos.uso) || 1,  // 👈 ¡Esto lo convertimos a número!
+                gnc: datos.gnc === "S" ? true : false,
+                rastreo: 0
             },
-        
-            // Información adicional
-            comision: datosCotizacion.comision || 20,  // Comisión
-            bonificacion: datosCotizacion.bonificacion || 0,  // Bonificación
-            periodo: datosCotizacion.periodo || 1,  // Periodo (1 = mensual, etc.)
-            cuotas: datosCotizacion.cuotas || 1,  // Cuotas (número de cuotas)
+            comision: datos.comision || 20,
+            bonificacion: datos.bonificacion || 0,
+            periodo: datos.periodo || 1,
+            cuotas: datos.cuotas || 1,
             pago: {
-                tipo_pago: datosCotizacion.tipo_pago || "D"  // Tipo de pago (D = débito)
+                tipo_pago: datos.tipo_pago || "D"
             },
-            ajuste_suma: datosCotizacion.ajuste_suma || 25,  // Ajuste de suma
-            iva: datosCotizacion.iva || 5,  // IVA
-            desglose: datosCotizacion.desglose || true,  // Desglose de la cotización
-        
-            // Localidad (postal code)
+            ajuste_suma: datos.ajuste_suma || 25,
+            iva: datos.iva || 5,
+            desglose: datos.desglose !== undefined ? datos.desglose : true,
             localidad: {
-                codigo_postal: datosCotizacion.codigo_postal || 7600 // Código postal de la localidad
+                codigo_postal: datos.codigoPostal || 7600
             }
-        };        
+        };
 
-        console.log("\u{1F4E6} Payload Mercantil Andina:", payload);
+        console.log("📦 Payload MERCANTIL ANDINA:", payload);
 
-        // Realizar la solicitud a la API de Mercantil Andina
         const response = await apiRequest('POST', config.MERCANTIL_ANDINA_API_URL, payload, headers);
 
         return response;

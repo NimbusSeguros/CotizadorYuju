@@ -7,7 +7,7 @@ const { cotizarIntegrity } = require('./integrityService');
 async function cotizarTodasLasCompanias(datos) {
     const resultados = [];
 
-    try {
+    /*try {
         const rus = await cotizarRUS(datos);
         if (rus) {
             resultados.push({
@@ -16,10 +16,11 @@ async function cotizarTodasLasCompanias(datos) {
             });
         }
     } catch (err) {
-        console.error("❌ Error cotizando con RUS:", err.message);
-    }
-
-    /*try {
+        console.error("❌ Error en cotización con RUS:", JSON.stringify(error.response?.data || error.message, null, 2));
+    }*/
+        
+    
+    try {
         const experta = await cotizarConExperta(datos);
         if (experta) {
             resultados.push({
@@ -30,6 +31,8 @@ async function cotizarTodasLasCompanias(datos) {
     } catch (err) {
         console.error("❌ Error cotizando con EXPERTA:", err.message);
     }
+
+    
 
     try {
         const mercantilAndina = await cotizarMercantilAndina(datos);
@@ -42,7 +45,9 @@ async function cotizarTodasLasCompanias(datos) {
     } catch (err) {
         console.error("❌ Error cotizando con MERCANTIL ANDINA:", err.message);
     }
+        
 
+    
     try {
         const sanCristobal = await cotizarSanCristobal(datos);
         if (sanCristobal) {
@@ -54,9 +59,10 @@ async function cotizarTodasLasCompanias(datos) {
     } catch (err) {
         console.error("❌ Error cotizando con SAN CRISTÓBAL:", err.message);
     }
+    
 
-
-    try {
+    /*try {
+        console.log("▶️ Cotizando con INTEGRITY...");
         const integrity = await cotizarIntegrity(datos);
         if (integrity) {
             resultados.push({
@@ -65,10 +71,10 @@ async function cotizarTodasLasCompanias(datos) {
             });
         }
     } catch (err) {
-        console.error("❌ Error cotizando con INTEGRITY:", err.message);
+        console.error("❌ Error cotizando con INTEGRITY:", err);
     }*/
 
-
+    
     return resultados;
 }
 
