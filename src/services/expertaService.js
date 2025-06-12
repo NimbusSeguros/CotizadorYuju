@@ -17,22 +17,23 @@ async function cotizarConExperta(datos) {
         nombres: datos.nombres || "Ignacio",
         apellido: datos.apellido || "Alcantara",
         email: datos.email || "ignacio.alcantara@alcanatargroup.com.ar",
-        codigoPostal: datos.codigoPostal || "1419000",
-        codInfoAuto: datos.codInfoAuto || 360720,
-        marca: datos.marca || "RENAULT",
+        codigoPostal: datos.codigoPostal || "5000",
+        codInfoAuto: datos.codInfoAuto,
+        marca: datos.marca,
         ceroKM: datos.ceroKM || "N",
-        modelo: datos.modelo || "DUSTER",
-        anio: datos.anio || 2013,
-        fechaVigencia: datos.fechaVigencia || "21/04/2025",
+        modelo: datos.modelo,
+        anio: datos.anio,
+        fechaVigencia: datos.fechaVigencia || "22/04/2025",
         gnc: datos.gnc || "N",
-        uso: datos.uso || "1", // 1 = Particular
-        iva: datos.iva || "5", // 5 = Responsable Inscripto
+        uso: datos.uso || "1",
+        iva: datos.iva || "5",
         modalidad: datos.modalidad || "EX0",
-        version: datos.version || "1.6 4X2 TECH ROAD CON AC, 05 PUERTAS",
+        version: datos.version,
         productor: datos.productor || "972"
     };
 
-    console.log("\u{1F4E6} Payload Experta:", payload);
+    console.log("📦 Payload EXPERTA:", payload);
+
     const response = await apiRequest('POST', url, payload, headers);
     return response;
 }
