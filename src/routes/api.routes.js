@@ -359,4 +359,9 @@ router.post('/cotizacion-auto/unificada', async (req, res) => {
     }
 });
 
+
+//BASE DE DATOS
+const cotizacionRoutes = require('./cotizacionesRoutes');
+router.use('/cotizacion', cotizacionRoutes);
+
 module.exports = router;
