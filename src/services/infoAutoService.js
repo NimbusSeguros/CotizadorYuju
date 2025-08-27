@@ -85,4 +85,55 @@ export async function getMarcas() {
 }));
 }
 
+export async function getModelos(marcaId) {
+  let token = await getToken();
+  const headers = () => ({ Authorization: `Bearer ${token}` });
+
+  const all = [];
+  const seen = new Set();
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore) {
+    const url = `https://api.infoauto.com.ar/cars/pub/brands/${encodeURIComponent(marcaId)}/models?page=${page}`;
+    const resp = await fetch(url, { headers: headers() });
+    const text = await resp.text();
+
+    let data = [];
+    try { data = text ? JSON.parse(text) : []; } catch {}
+
+    console.log("📄 modelos", { page, status: resp.status, count: Array.isArray(data) ? data.length : 'non-array' });
+
+    if (!resp.ok) {
+      // Si caducó el token, intentá 1 vez renovar y repetir la página
+      if (resp.status === 401) {
+        token = await getToken(true); // true => fuerza refresco si lo tenés implementado
+        continue; // vuelve a pedir la MISMA página con token nuevo
+      }
+      console.error(`Error en página ${page}:`, text?.slice(0, 300));
+      throw new Error("Error al obtener modelos");
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      hasMore = false;
+    } else {
+      for (const m of data) {
+        const id = m?.codia ?? m?.id ?? m?.code;
+        const name = m?.description ?? m?.name ?? m?.descripcion;
+        if (id != null && name) {
+          const k = String(id);
+          if (!seen.has(k)) {
+            seen.add(k);
+            all.push({ id, name: String(name).trim() });
+          }
+        }
+      }
+      page++;
+    }
+  }
+
+  all.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  return all;
+}
+
 

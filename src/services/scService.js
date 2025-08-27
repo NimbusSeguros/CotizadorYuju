@@ -1,5 +1,6 @@
 const { apiRequest } = require('../services/externalService');
 const { getAuthToken } = require('./authService');
+const { obtenerCoberturas } = require('../utils/coberturasConfig');
 const config = require('../config');
 
 async function cotizarSanCristobal(datosCotizacion) {
@@ -21,6 +22,15 @@ async function cotizarSanCristobal(datosCotizacion) {
         const fechaFinal = (fechaVigencia >= hace30dias && fechaVigencia <= hoy)
             ? fechaVigencia.toISOString()
             : hoy.toISOString();
+
+        // ✅ Obtener lista de coberturas válidas para el año, corrigiendo los códigos especiales
+        const productosValidos = obtenerCoberturas("SAN_CRISTOBAL", datosCotizacion.anio || 2022);
+
+        const productos = productosValidos.map(code => ({
+            ProductCode: code.startsWith("CA7_D") && code !== "CA7_D"
+                ? "CA7_D"  // Normalizamos cualquier CA7_D101, D102, etc. a CA7_D
+                : code
+        }));
 
         const payload = {
             InsuredData: {
@@ -65,14 +75,11 @@ async function cotizarSanCristobal(datosCotizacion) {
                     RiskLocationPostalCode: datosCotizacion.riskLocationPostalCode || 1407,
                     RiskLocationState: datosCotizacion.riskLocationState || "AR_23"
                 },
-                Product: [
-                    { ProductCode: "CA7_D" },
-                    { ProductCode: "CA7_CM" }
-                ]
+                Product: productos
             }
         };
 
-        console.log("\u{1F4E6} Payload San Cristóbal:", payload);
+        console.log("📦 Payload San Cristóbal:", payload);
 
         const response = await apiRequest('POST', url, payload, headers);
         return response;

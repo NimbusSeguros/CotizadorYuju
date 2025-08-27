@@ -1,13 +1,18 @@
 {
   "dependencies": {
-    "axios": "^1.8.2",
+    "@supabase/supabase-js": "^2.56.0",
+    "axios": "^1.11.0",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fast-xml-parser": "^5.2.5",
     "node-fetch": "^3.3.2",
+    "request": "^2.88.2",
     "soap": "^1.1.10",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "xml2js": "^0.6.2"
   },
   "name": "cotizadoryuju",
   "version": "1.0.0",

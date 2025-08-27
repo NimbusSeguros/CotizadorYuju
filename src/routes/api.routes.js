@@ -8,8 +8,105 @@ const { getAuthToken } = require('../services/authService');
 const { enviarSolicitudSOAP } = require('../services/integrityService');
 const { cotizarTodasLasCompanias } = require('../services/cotizacionService');
 const config = require('../config');
-const { getMarcas } = require("../services/infoAutoService");
+const { getMarcas, getModelos } = require("../services/infoAutoService");
 const { getToken } = require("../services/infoAutoService")
+const { supabase } = require('../lib/supabase');
+
+
+
+///////////////////////////// SUPABASE /////////////////////////////////////////
+
+function isValidPhone(s) {
+  return typeof s === 'string' && s.replace(/\D/g, '').length >= 8;
+}
+
+router.post('/leads', async (req, res) => {
+  try {
+    const {
+      phone, insurer, plan_code, plan_name,
+      price, franchise, cuotas,
+      form_snapshot, quote_payload
+    } = req.body || {};
+
+    if (!isValidPhone(phone)) {
+      return res.status(400).json({ error: 'Teléfono inválido' });
+    }
+
+    const insert = {
+      phone,
+      insurer: insurer || null,
+      plan_code: plan_code || null,
+      plan_name: plan_name || null,
+      price: price != null ? Number(price) : null,
+      franchise: franchise ?? null,
+      cuotas: cuotas != null ? Number(cuotas) : null,
+      form_snapshot: form_snapshot || null,
+      quote_payload: quote_payload || null
+    };
+
+    const { data, error } = await supabase
+      .from('quote_leads')
+      .insert([insert])
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      return res.status(500).json({ error: 'No se pudo guardar el lead' });
+    }
+
+    res.json({ ok: true, lead: data });
+  } catch (err) {
+    console.error('POST /leads failed:', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+router.post('/cotizaciones', async (req, res) => {
+  try {
+    const {
+      marca,          // REQUERIDO
+      modelo_version, // REQUERIDO
+      cp,             // REQUERIDO
+      anio,           // REQUERIDO (number)
+      aseguradora,    // opcional
+      plan,           // opcional
+      telefono,       // opcional (si creaste la columna)
+    } = req.body || {};
+
+    // Validación mínima para no violar NOT NULL
+    if (!marca || !modelo_version || !cp || !anio) {
+      return res.status(400).json({ error: 'Faltan campos: marca, modelo_version, cp, anio' });
+    }
+
+    const insert = {
+      marca: String(marca),
+      modelo_version: String(modelo_version),
+      cp: String(cp),
+      anio: Number(anio),
+      aseguradora: aseguradora ?? null,
+      plan: plan ?? null,
+      telefono: telefono ?? null,
+      // estado no lo mandamos; default = 'CREADA'
+    };
+
+    const { data, error } = await supabase
+      .from('cotizacion')
+      .insert([insert])
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      return res.status(500).json({ error: 'No se pudo crear la cotización' });
+    }
+
+    res.json({ ok: true, cotizacion: data });
+  } catch (e) {
+    console.error('POST /cotizaciones', e);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
 
 
 
@@ -65,36 +162,27 @@ router.post('/cotizar', async (req, res) => {
 
 ///////////////////////////////////// I N F O      A U T O ////////////////////////////////////////
 
-router.get("/infoauto/modelos/:marcaId", async (req, res) => {
-  try {
-    const token = await getToken();
-    const { marcaId } = req.params;
-
-    const response = await fetch(`https://api.infoauto.com.ar/cars/pub/brands/${marcaId}/models`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    const data = await response.json();
-    console.log("🧾 Modelos crudos de InfoAuto:", data);
-
-    if (!response.ok) {
-      console.error("❌ Error al obtener modelos:", data);
-      return res.status(500).json({ error: "Error al obtener modelos" });
+router.get('/infoauto/marcas', async (req, res) => {
+    try {
+      const marcas = await getMarcas();
+      res.json(marcas);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'No se pudo obtener marcas' });
     }
+  });
 
-    const modelos = data.map((m) => ({
-      id: m.codia,
-      name: m.description
-    }));
-
+router.get('/infoauto/modelos/:marcaId', async (req, res) => {
+  try {
+    const modelos = await getModelos(req.params.marcaId);
     res.json(modelos);
   } catch (error) {
-    console.error("❌ Error en /infoauto/modelos:", error);
-    res.status(500).json({ error: "Fallo al obtener modelos" });
+    console.error(error);
+    res.status(500).json({ error: 'No se pudo obtener modelos' });
   }
 });
+
+
 
 router.get("/infoauto/fake-cotizaciones", (req, res) => {
   res.json([
@@ -158,31 +246,6 @@ router.get("/infoauto/fake-cotizaciones", (req, res) => {
 })
 
 
-
-
-
-router.get('/infoauto/marcas', async (req, res) => {
-    try {
-      const marcas = await getMarcas();
-      res.json(marcas);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'No se pudo obtener marcas' });
-    }
-  });
-
-
-///////////////////////////////////// I N F O      A U T O ////////////////////////////////////////
-
-router.get("/marcas", async (req, res) => {
-  try {
-    const marcas = await getMarcas()
-    res.json(marcas)
-  } catch (error) {
-    console.error("Error en /api/infoauto/marcas:", error.message)
-    res.status(500).json({ error: "Error al obtener marcas desde InfoAuto" })
-  }
-})
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
