@@ -1,5 +1,7 @@
 const { apiRequest } = require('../services/externalService');
 const { getAuthToken } = require('./authService');
+const { obtenerCoberturas } = require('../utils/coberturasConfig');
+
 const config = require('../config');
 
 async function cotizarMercantilAndina(datos) {
@@ -11,6 +13,10 @@ async function cotizarMercantilAndina(datos) {
             'Authorization': `Bearer ${token}`,
             'Ocp-Apim-Subscription-Key': config.MERCANTIL_ANDINA_API_SUBSCRIPTION_PRIMARY_KEY
         };
+
+        const coberturas = obtenerCoberturas("MERCANTIL", datos.anio || 2022);
+
+        console.log("✅ Coberturas que se mandan a MERCANTIL:", coberturas);
 
         const payload = {
             sucursal: "001",
@@ -29,7 +35,7 @@ async function cotizarMercantilAndina(datos) {
                 marca: datos.marca,
                 modelo: datos.modelo,
                 version: datos.version,
-                uso: parseInt(datos.uso) || 1,  // 👈 ¡Esto lo convertimos a número!
+                uso: parseInt(datos.uso) || 1,
                 gnc: datos.gnc === "S" ? true : false,
                 rastreo: 0
             },
@@ -45,16 +51,17 @@ async function cotizarMercantilAndina(datos) {
             desglose: datos.desglose !== undefined ? datos.desglose : true,
             localidad: {
                 codigo_postal: datos.codigoPostal || 7600
-            }
+            },
+            coberturas: coberturas
         };
-
-        console.log("📦 Payload MERCANTIL ANDINA:", payload);
-
+        //const productos = response?.response?.resultado || [];
         const response = await apiRequest('POST', config.MERCANTIL_ANDINA_API_URL, payload, headers);
 
-        return response;
+        return {
+            productos: response.resultado || []
+                };
     } catch (error) {
-        console.error("❌ Error obteniendo cotización de Mercantil Andina:", error.message);
+        console.error("❌ Error obteniendo cotización de Mercantil Andina:", error.response?.data || error.message);
         throw new Error("No se pudo obtener la cotización de Mercantil Andina");
     }
 }

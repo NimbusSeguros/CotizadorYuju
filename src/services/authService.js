@@ -11,15 +11,25 @@ const AUTH_CONFIG = {
         tokenPath: "message", // El token viene dentro de "message"
         headers: { "Content-Type": "application/json" }
     },
-    INTEGRITY: {
-        url: `${config.INTEGRITY_API_URL}/auth`,
-        payload: () => ({
-            usuario: config.INTEGRITY_PRODUCTOR,
-            clave: config.INTEGRITY_TICKET
-        }),
-        tokenPath: "token",
-        headers: { "Content-Type": "application/json" }
-    },
+    /*INTEGRITY: {
+        url: (() => {
+            const url = `${config.INTEGRITY_API_URL}/auth`;
+            console.log("👉 URL de Integrity:", url);
+            return url;
+        })(),
+        payload: () => {
+            const payload = {
+                usuario: config.INTEGRITY_PRODUCTOR,
+                clave: config.INTEGRITY_TICKET
+            };
+            console.log("📤 Payload enviado a Integrity:", payload);
+            return payload;
+        },
+        tokenPath: "token", // Cambialo si el token viene en otro lugar (ver respuesta de la API real)
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }*/
     MERCANTIL_ANDINA: {
         url: config.MERCANTIL_ANDINA_API_LOGIN_URL,
         payload: () => new URLSearchParams({
