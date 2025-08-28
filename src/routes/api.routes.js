@@ -217,78 +217,103 @@ router.get('/infoauto/marcas', async (req, res) => {
     }
   });
 
-router.get('/infoauto/modelos/:marcaId', async (req, res) => {
-  try {
-    const modelos = await getModelos(req.params.marcaId);
-    res.json(modelos);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'No se pudo obtener modelos' });
-  }
-});
-
-
-
-router.get("/infoauto/fake-cotizaciones", (req, res) => {
-  res.json([
-    {
-      id: 1,
-      name: "RUS",
-      logo: "/logos/rus.png",
-      status: "Actualmente el sistema de RUS se encuentra bajo una actualización, probá nuevamente en unos minutos",
-      prices: {
-        responsabilidad: { min: 5000, max: 10000 },
-        terceros: { min: 8000, max: 10000 },
-        tercerosCompleto: { min: 9000, max: 10000 },
-        todoRiesgo: { min: 10000, max: 10000 },
-      },
-    },
-    {
-      id: 2,
-      name: "San Cristóbal",
-      logo: "/logos/san-cristobal.png",
-      prices: {
-        responsabilidad: { min: 5000, max: 10000 },
-        terceros: { min: 8000, max: 10000 },
-        tercerosCompleto: { min: 9000, max: 10000 },
-        todoRiesgo: { min: 10000, max: 10000 },
-      },
-    },
-    {
-      id: 3,
-      name: "Experta",
-      logo: "/logos/experta.png",
-      prices: {
-        responsabilidad: { min: 5000, max: 10000 },
-        terceros: { min: 8000, max: 10000 },
-        tercerosCompleto: { min: 9000, max: 10000 },
-        todoRiesgo: { min: 10000, max: 10000 },
-      },
-    },
-    {
-      id: 4,
-      name: "Mercantil Andina",
-      logo: "/logos/mercantil-andina.png",
-      prices: {
-        responsabilidad: { min: 5000, max: 10000 },
-        terceros: { min: 8000, max: 10000 },
-        tercerosCompleto: { min: 9000, max: 10000 },
-        todoRiesgo: { min: 10000, max: 10000 },
-      },
-    },
-    {
-      id: 5,
-      name: "Intégrity",
-      logo: "/logos/integrity.png",
-      prices: {
-        responsabilidad: { min: 5000, max: 10000 },
-        terceros: { min: 8000, max: 10000 },
-        tercerosCompleto: { min: 9000, max: 10000 },
-        todoRiesgo: { min: 10000, max: 10000 },
-      },
+  router.get('/infoauto/modelos/:marcaId', async (req, res) => {
+    const { marcaId } = req.params;
+    const forceRefresh = req.query.refresh === '1';
+    try {
+      const modelos = await getModelos(marcaId, { forceRefresh });
+      res.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+      res.json(modelos);
+    } catch (error) {
+      console.error('Error /infoauto/modelos/:marcaId', error);
+      res.status(502).json({ error: 'No se pudo obtener modelos' });
     }
-  ])
-})
+  });
+  
+  // Opcional: búsqueda/paginación
+  router.get('/infoauto/modelos/:marcaId/search', async (req, res) => {
+    const { marcaId } = req.params;
+    const q = (req.query.q || '').toString().trim();
+    const offset = Math.max(0, parseInt(req.query.offset ?? '0', 10));
+    const limit = Math.min(500, Math.max(1, parseInt(req.query.limit ?? '100', 10)));
+    try {
+      let items = await getModelos(marcaId);
+      if (q) {
+        const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+        const qn = norm(q);
+        items = items.filter(m => norm(m.name).includes(qn));
+      }
+      const total = items.length;
+      const slice = items.slice(offset, offset + limit);
+      res.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+      res.json({ total, offset, limit, items: slice });
+    } catch (error) {
+      console.error('Error /infoauto/modelos/:marcaId/search', error);
+      res.status(502).json({ error: 'Error al buscar modelos' });
+    }
+  });
+
+
+  router.get("/infoauto/fake-cotizaciones", (req, res) => {
+    res.json([
+      {
+        id: 1,
+        name: "RUS",
+        logo: "/logos/rus.png",
+        status: "Actualmente el sistema de RUS se encuentra bajo una actualización, probá nuevamente en unos minutos",
+        prices: {
+          responsabilidad: { min: 5000, max: 10000 },
+          terceros: { min: 8000, max: 10000 },
+          tercerosCompleto: { min: 9000, max: 10000 },
+          todoRiesgo: { min: 10000, max: 10000 },
+        },
+      },
+      {
+        id: 2,
+        name: "San Cristóbal",
+        logo: "/logos/san-cristobal.png",
+        prices: {
+          responsabilidad: { min: 5000, max: 10000 },
+          terceros: { min: 8000, max: 10000 },
+          tercerosCompleto: { min: 9000, max: 10000 },
+          todoRiesgo: { min: 10000, max: 10000 },
+        },
+      },
+      {
+        id: 3,
+        name: "Experta",
+        logo: "/logos/experta.png",
+        prices: {
+          responsabilidad: { min: 5000, max: 10000 },
+          terceros: { min: 8000, max: 10000 },
+          tercerosCompleto: { min: 9000, max: 10000 },
+          todoRiesgo: { min: 10000, max: 10000 },
+        },
+      },
+      {
+        id: 4,
+        name: "Mercantil Andina",
+        logo: "/logos/mercantil-andina.png",
+        prices: {
+          responsabilidad: { min: 5000, max: 10000 },
+          terceros: { min: 8000, max: 10000 },
+          tercerosCompleto: { min: 9000, max: 10000 },
+          todoRiesgo: { min: 10000, max: 10000 },
+        },
+      },
+      {
+        id: 5,
+        name: "Intégrity",
+        logo: "/logos/integrity.png",
+        prices: {
+          responsabilidad: { min: 5000, max: 10000 },
+          terceros: { min: 8000, max: 10000 },
+          tercerosCompleto: { min: 9000, max: 10000 },
+          todoRiesgo: { min: 10000, max: 10000 },
+        },
+      }
+    ])
+  })
 
 
 

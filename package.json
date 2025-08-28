@@ -7,6 +7,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fast-xml-parser": "^5.2.5",
+    "ioredis": "^5.7.0",
     "node-fetch": "^3.3.2",
     "request": "^2.88.2",
     "soap": "^1.1.10",
