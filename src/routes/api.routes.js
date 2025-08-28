@@ -150,15 +150,60 @@ router.post('/cotizar/experta', async (req, res) => {
     }
 });
 
+// router.post('/cotizar', async (req, res) => {
+//     try {
+//         const cotizaciones = await cotizarTodasLasCompanias(req.body);
+//         res.json({ cotizaciones });
+//     } catch (error) {
+//         console.error("❌ Error general en cotización:", error.message);
+//         res.status(500).json({ error: "Error al obtener las cotizaciones." });
+//     }
+// });
+
+// ----------------- utilidades locales de timeout -----------------
+
+// ----------------- handler /cotizar con límites -----------------
+
 router.post('/cotizar', async (req, res) => {
-    try {
-        const cotizaciones = await cotizarTodasLasCompanias(req.body);
-        res.json({ cotizaciones });
-    } catch (error) {
-        console.error("❌ Error general en cotización:", error.message);
-        res.status(500).json({ error: "Error al obtener las cotizaciones." });
-    }
+  const started = Date.now();
+  try {
+    // delegamos en el service pero con timeout global duro
+    const results = await Promise.race([
+      cotizarTodasLasCompanias(req.body), // <- tu service (ver abajo)
+      globalTimeout(25_000),              // ~25s para responder sí o sí
+    ]);
+
+    // si el service devolvió “parcial” por su cuenta, perfecto
+    return res.status(200).json({
+      ok: true,
+      elapsed_ms: Date.now() - started,
+      cotizaciones: results,
+    });
+  } catch (err) {
+    // ante cualquier corte, respondemos sin colgar al cliente/CF
+    return res.status(200).json({
+      ok: true,
+      elapsed_ms: Date.now() - started,
+      cotizaciones: [], // devolvemos vacío pero no rompemos UX
+      error: String(err?.message || err),
+    });
+  }
 });
+
+function withTimeout(promise, ms, label = 'tarea') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timeout (${ms}ms)`)), ms)
+    ),
+  ]);
+}
+
+function globalTimeout(ms) {
+  return new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`global timeout (${ms}ms)`)), ms)
+  );
+}
 
 ///////////////////////////////////// I N F O      A U T O ////////////////////////////////////////
 
