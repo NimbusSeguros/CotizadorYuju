@@ -3,7 +3,7 @@ const config = require('../config');
 
 const AUTH_CONFIG = {
     RUS: {
-        url: `${config.RUS_API_URL_TEST}/api-rus/login/token`,
+        url: `${config.RUS_API_URL}/api-rus/login/token`,
         payload: () => ({
             userName: config.RUS_API_USERNAME,
             password: config.RUS_API_PASSWORD

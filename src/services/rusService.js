@@ -57,7 +57,7 @@ async function cotizarRUS(datos) {
     const token = await getAuthToken('RUS');
     console.log('🔐 [RUS] Token obtenido (cache/refresh OK)');
 
-    const url = `${config.RUS_API_URL_TEST}/api-rus/cotizaciones/autos`;
+    const url = `${config.RUS_API_URL}/api-rus/cotizaciones/autos`;
 
     const { desde, hasta } = calcularVigencias(datos.fechaVigencia);
 
